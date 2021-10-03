@@ -1,0 +1,61 @@
+---
+title: "QMM Assignment 2"
+author: "Prerak Patel"
+date: "9/29/2021"
+output: word_document
+---
+
+
+```{r }
+library(lpSolveAPI)
+# setwd("~/R_KSU/Quant/Assignment2")
+```
+
+```{r }
+lprec <- make.lp(0,9)
+lprec
+```
+
+```{r }
+set.objfn(lprec, c(420,360, 300, 420, 360, 300, 420, 360, 300))
+lp.control(lprec, sense='max')
+```
+
+```{r}
+# Add the constraints
+add.constraint(lprec, c(1, 1, 1, 0, 0, 0, 0, 0, 0), "<=", 750)
+add.constraint(lprec, c(0, 0, 0, 1, 1, 1, 0, 0, 0), "<=", 900)
+add.constraint(lprec, c(0, 0, 0, 0, 0, 0,1, 1, 1), "<=", 450)
+add.constraint(lprec, c(20, 15, 12, 0, 0, 0, 0, 0, 0), "<=", 13000)
+add.constraint(lprec, c(0, 0, 0, 20, 15, 12, 0, 0, 0), "<=", 12000)
+add.constraint(lprec, c(0, 0, 0, 0, 0, 0, 20, 15, 12), "<=", 5000)
+add.constraint(lprec, c(1, 1, 1, 0, 0, 0, 0, 0, 0), "<=", 900)
+add.constraint(lprec, c(0, 0, 0, 1, 1, 1, 0, 0, 0), "<=", 1200)
+add.constraint(lprec, c(0, 0, 0, 0, 0, 0, 1, 1, 1), "<=", 750)
+add.constraint(lprec, c(6, 6, 6, -5, -5, -5, 0, 0, 0), "=", 0)
+add.constraint(lprec, c( 3, 3, 3, 0, 0, 0, -5, -5, -5), "=", 0)
+
+```
+
+```{r}
+RowNames <- c("CapCon1", "CapCon2", "CapCon3", "StoCon1", "StoCon2", "StoCon3", "SalCon1", "SalCon2", "SalCon3", "%C1", "%C2")
+ColNames <- c("P1Large", "P1Medium", "P1Small", "P2Large", "P2Medium", "P2Small", "P3Large", "P3Medium", "P3Small")
+dimnames(lprec) <- list(RowNames, ColNames)
+
+lprec
+
+```
+
+```{r}
+write.lp(lprec, filename = "QMM_Assignment2.lp", type = "lp")
+solve(lprec)
+
+```
+
+```{r}
+get.objective(lprec)
+```
+
+```{r}
+get.variables(lprec)
+```
