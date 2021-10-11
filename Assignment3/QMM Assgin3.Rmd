@@ -1,0 +1,104 @@
+---
+title: "QMM Assign3"
+author: "Prerak Patel"
+date: "10/10/2021"
+output: word_document
+---
+
+
+## Question
+
+The Weigelt Corporation has three branch plants with excess production capacity. Fortunately, the corporation has a new product ready to begin production, and all three plants have this capability, so some of the excess capacity can be used in this way. This product can be made in three sizes--large, medium, and small--that yield a net unit profit of $420, $360, and $300, respectively. 
+  Sizes  [ large, medium, small ] = [ 420, 360, 300 ] $
+  Plant  [P1, P2, P3 ] = [750, 900, 450 ] units per day of this product,  
+  Amount of available in-process storage space also imposes a limitation on the production rates of the new product. 
+  Storage [s1, s2, s3 ] = [13,000, 12,000, 5,000 ] square feet
+  Each unit of the [large, medium, small ] sizes produced per day requires [20, 15, 12] square feet
+  
+  Sales forecasts [large, medium, and small] = [900, 1,200, 750 ] units of the  sizes, would be sold per day. 
+
+At each plant, some employees will need to be laid off unless most of the plant’s excess production capacity can be used to produce the new product. To avoid layoffs if possible, management has decided that the plants should use the same percentage of their excess capacity to produce the new product. 
+
+Management wishes to know how much of each of the sizes should be produced by each of the plants to maximize profit.
+
+  1.Solve the problem using lpsolve, or any other equivalent library in R.
+
+  2.Identify the shadow prices, dual solution, and reduced costs
+  
+  3.Further, identify the sensitivity of the above prices and costs. That is, specify the range of shadow prices and reduced  cost within which the optimal solution will not change.
+  
+  4.Formulate the dual of the above problem and solve it. Does the solution agree with what you observed for the primal problem?
+
+=================================================================================================================================================
+
+###  1. Solve the problem using lpsolve, or any other equivalent library in R.
+```{r warning=FALSE, echo=FALSE}
+#setwd("~/R_KSU/Quant/Assignment3")
+library(lpSolveAPI)
+```
+
+```{r warning=FALSE, echo=FALSE}
+lprec <- read.lp("weigelt.lp")
+lprec
+```
+
+```{r warning=FALSE, echo=FALSE}
+solve(lprec)
+get.objective(lprec)  #MAXIMIZED PROFIT
+get.variables(lprec)
+```
+```{r warning=FALSE, echo=FALSE}
+get.constraints(lprec)  
+```
+
+###  2.Identify the shadow prices, dual solution, and reduced costs
+```{r warning=FALSE, echo=FALSE}
+get.sensitivity.rhs(lprec)  # SHADOW PRICES
+```
+```{r warning=FALSE, echo=FALSE}
+get.sensitivity.obj(lprec)  # REDUCED COSTS
+```
+```{r warning=FALSE, echo=FALSE}
+get.dual.solution(lprec)  # DUAL SOLUTIONS
+```
+  
+    
+###  4. Formulate the dual of the above problem and solve it. Does the solution agree with what you observed for the primal problem?
+  
+```{r warning=FALSE, echo=FALSE}
+lprec1 <- make.lp(0,11)
+
+# Creating an objective function and since we need to minimize it. We will set the sense to min.
+set.objfn(lprec1, c(750,900,450,13000,12000,5000,900,1200,750,0,0))
+lp.control(lprec1, sense='min')
+```
+
+```{r include=TRUE}
+# Adding constraints
+
+add.constraint(lprec1,c(1, 0, 0, 20, 0, 0, 1, 0, 0, 900, 450), '>=',420 )
+add.constraint(lprec1,c(1, 0, 0, 15, 0, 0, 0, 1, 0, 900, 450), '>=',360 )
+add.constraint(lprec1,c(1, 0, 0, 12, 0, 0, 0, 0, 1, 900, 450), '>=',300 )
+
+add.constraint(lprec1,c(0, 1, 0, 0, 20, 0, 1, 0, 0, -750, 0), '>=',420 )
+add.constraint(lprec1,c(0, 1, 0, 0, 15, 0, 0, 1, 0, -750, 0), '>=',360 )
+add.constraint(lprec1,c(0, 1, 0, 0, 12, 0, 0, 0, 1, -750, 0), '>=',300 )
+
+add.constraint(lprec1,c(0, 0, 1, 0, 0, 20, 1, 0, 0, 0, -750), '>=',420 )
+add.constraint(lprec1,c(0, 0, 1, 0, 0, 15, 0, 1, 0, 0, -750), '>=',360 )
+add.constraint(lprec1,c(0, 0, 1, 0, 0, 12, 0, 0, 1, 0, -750), '>=',300 )
+
+# write.lp(lprec1,'duality.lp',type="lp" )
+```
+
+```{r }
+
+solve(lprec1)
+get.objective(lprec1)
+get.variables(lprec1)
+
+get.constraints(lprec1)
+
+get.sensitivity.rhs(lprec1)
+get.sensitivity.obj(lprec1)
+```
